@@ -35,7 +35,7 @@ app.post('/secret', (req, res) => {
                     res.send('Inserted into database')
                 }
             })
-            db.close()
+            client.close()
         }
     })
 })
