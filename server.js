@@ -18,7 +18,7 @@ app.get('/secret', (req, res) => {
 })
 
 app.post('/secret', (req, res) => {
-    MongoClient.connect(URI, {useNewUrlParser: true}, (error, client) => {
+    MongoClient.connect(URI, (error, client) => {
         if(error){
             console.log(error)
         }else{
@@ -43,7 +43,7 @@ app.post('/secret', (req, res) => {
 app.get('/:param', (req, res) => {
     const name = req.url.slice(1).toLocaleLowerCase()
 
-    MongoClient.connect(URI, {useNewUrlParser: true}, (error, client) => {
+    MongoClient.connect(URI, (error, client) => {
         if(error){
             console.log(error)
         }else{
