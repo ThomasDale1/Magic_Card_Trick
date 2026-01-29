@@ -40,7 +40,7 @@ app.post('/secret', (req, res) => {
     })
 })
 
-app.get('/:param*', (req, res) => {
+app.get('/:param', (req, res) => {
     const name = req.url.slice(1).toLocaleLowerCase()
 
     MongoClient.connect(URI, {useNewUrlParser: true}, (error, client) => {
