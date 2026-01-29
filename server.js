@@ -63,7 +63,7 @@ app.get('/:param*', (req, res) => {
                     } else {
                         res.sendStatus(404)
                     }
-                    db.close()
+                    client.close()
                 })
             }
         }
