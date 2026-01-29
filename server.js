@@ -41,7 +41,7 @@ app.post('/secret', (req, res) => {
 })
 
 app.get('/:param', (req, res) => {
-    const name = req.url.slice(1).toLocaleLowerCase()
+    const name = req.params.param.toLocaleLowerCase()
 
     MongoClient.connect(URI, (error, client) => {
         if(error){
@@ -50,8 +50,8 @@ app.get('/:param', (req, res) => {
             const db = client.db(DB_NAME)
             const collection = db.collection('names')
 
-            if (name === 'deletall'){
-                collection.remove({})
+            if (name === 'deleteall'){
+                collection.deleteMany({})
                 res.send('database reset')
             }else{
                 collection.find({name: name}).toArray((error, result) => {
@@ -70,6 +70,8 @@ app.get('/:param', (req, res) => {
     })
 })
 
-app.listen(PORT, ()=>{
+app.listen(PORT, '0.0.0.0', ()=>{
     console.log('Server running on port ' + PORT);
+    console.log('MongoDB URI configured:', URI ? 'Yes' : 'No');
+    console.log('DB Name:', DB_NAME);
 })
