@@ -22,6 +22,8 @@ app.post('/secret', (req, res) => {
         if(error){
             console.log(error)
         }else{
+            console.log('POST request:', req.body)
+            console.log(client)
             const db = client.db(DB_NAME)
             const collection = db.collection('names')
             const entry = {
@@ -32,7 +34,7 @@ app.post('/secret', (req, res) => {
                 if(error){
                     console.log(error)
                 }else{
-                    res.send('Inserted into database')
+                    res.status(200).send('Inserted into database')
                 }
             })
             client.close()
