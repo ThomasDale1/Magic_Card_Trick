@@ -67,34 +67,66 @@ app.post('/secret', async (req, res) => {
 });
 
 app.get('/:param', (req, res) => {
-    const name = req.params.param.toLocaleLowerCase()
+    const name = req.params.param.toLowerCase()
+    console.log('🔍 GET /:param - Looking for:', name);
 
-    MongoClient.connect(URI, (error, client) => {
-        if(error){
-            console.log(error)
-        }else{
-            const db = client.db(DB_NAME)
-            const collection = db.collection('names')
+    let client;
+    
+    try {
+        client = await MongoClient.connect(URI, {
+            serverSelectionTimeoutMS: 5000,
+        });
+        
+        console.log('✅ Connected to MongoDB');
+        
+        const db = client.db(DB_NAME);
+        const collection = db.collection('names');
 
-            if (name === 'deleteall'){
-                collection.deleteMany({})
-                res.send('database reset')
-            }else{
-                collection.find({name: name}).toArray((error, result) => {
-                    if(error){
-                        console.log(error);
-                    }else if(result.length){
-                        const card = result[result.length-1].card + '.png'
-                        res.sendFile(path.join(__dirname + '/cards/' + card))
-                    } else {
-                        res.sendStatus(404)
-                    }
-                    client.close()
-                })
+        if (name === 'deleteall') {
+            await collection.deleteMany({});
+            console.log('🗑️ Database reset');
+            res.send('database reset');
+        } else {
+            console.log('🔍 Searching for name:', name);
+            
+            const result = await collection.find({name: name}).toArray();
+            
+            console.log('📊 Query result:', result.length, 'documents found');
+            console.log('📄 Documents:', JSON.stringify(result, null, 2));
+            
+            if (result.length) {
+                const latestEntry = result[result.length - 1];
+                const card = latestEntry.card + '.png';
+                const cardPath = path.join(__dirname, 'cards', card);
+                
+                console.log('🎴 Sending card:', card);
+                console.log('📁 Full path:', cardPath);
+                
+                // Verificar si el archivo existe
+                const fs = require('fs');
+                if (fs.existsSync(cardPath)) {
+                    res.sendFile(cardPath);
+                } else {
+                    console.error('❌ Card file not found:', cardPath);
+                    res.status(404).send(`Card file not found: ${card}`);
+                }
+            } else {
+                console.log('❌ No card found for name:', name);
+                res.status(404).send(`No card found for name: ${name}`);
             }
         }
-    })
-})
+    } catch(error) {
+        console.error('❌ GET Error:', error.message);
+        console.error('Full error:', error);
+        res.status(500).send('Server error: ' + error.message);
+    } finally {
+        if (client) {
+            client.close();
+            console.log('🔵 Connection closed');
+        }
+    }
+});
+
 
 app.listen(PORT, '0.0.0.0', ()=>{
     console.log('Server running on port ' + PORT);
