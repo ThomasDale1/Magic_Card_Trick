@@ -66,7 +66,7 @@ app.post('/secret', async (req, res) => {
     }
 });
 
-app.get('/:param', (req, res) => {
+app.get('/:param', async (req, res) => {
     const name = req.params.param.toLowerCase()
     console.log('🔍 GET /:param - Looking for:', name);
 
@@ -121,7 +121,7 @@ app.get('/:param', (req, res) => {
         res.status(500).send('Server error: ' + error.message);
     } finally {
         if (client) {
-            client.close();
+            await client.close();
             console.log('🔵 Connection closed');
         }
     }
